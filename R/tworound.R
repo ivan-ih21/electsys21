@@ -1,4 +1,41 @@
 ################################################################################
+#' Two-Round System (runoff) election
+#'
+#' Runs a Two-Round System election. In the first round each voter's top
+#' preference is counted; if a candidate wins more than 50% of the valid votes
+#' they are elected outright. Otherwise the top two candidates advance to a
+#' second round, where each voter's preference between the two finalists is
+#' counted and the finalist with the most votes wins. The majority threshold is
+#' strictly greater than 50%.
+#'
+#' @inheritParams voting-params
+#' @param ties Character string giving the tie-breaking rule applied when
+#'   several candidates are tied for a winning position. One of `"random"` (the
+#'   default; pick one tied candidate at random), `"lexicographic"` (pick the
+#'   alphabetically first) or `"all"` (return all tied candidates).
+#'
+#' @return An object of class `"tworound_result"`, a list with elements:
+#'   `round1` (a list with the first-round `summary` data frame and `n_valid`
+#'   vote count), `round2` (a list with the second-round `summary` and
+#'   `n_valid`, or `NULL` when the election is decided in round 1),
+#'   `finalists` (the candidate name(s) advancing to round 2, or
+#'   `character(0)`), `winners` (the winning candidate name(s)), `n_voters`,
+#'   `n_candidates`, and `method` (a list recording `type`, `ties`, and
+#'   `tworound`, a logical flag for whether a second round was held).
+#'   If `return_ranks = TRUE`, the derived ranking matrix is also attached as
+#'   `$ranks`. Print the object or call [summary()] on it for a formatted
+#'   results table.
+#'
+#' @seealso [fptp()], [irv()], [borda()]
+#'
+#' @examples
+#' ranks <- gen_ranks(n_voters = 30, n_candidates = 4, seed = 1)
+#' tworound(ranks)
+#'
+#' utilities <- gen_utilities(n_voters = 30, n_candidates = 4, seed = 1)
+#' tworound(utilities, type = "utility", ties = "lexicographic")
+#'
+#' @export
 tworound <- function(
   x,
   type = c("auto", "rank", "utility", "approval"),
@@ -273,6 +310,7 @@ tworound <- function(
 
 ################################################################################
 # Printer for tworound_result
+#' @export
 print.tworound_result <- function(x, digits = 1, ...) {
   stopifnot(inherits(x, "tworound_result"))
   .tworound_pretty_print(x, digits = digits)
@@ -282,6 +320,7 @@ print.tworound_result <- function(x, digits = 1, ...) {
 
 ################################################################################
 # Summary for tworound_result
+#' @export
 summary.tworound_result <- function(x, digits = 1, ...) {
   stopifnot(inherits(x, "tworound_result"))
   .tworound_pretty_print(x, digits = digits, title = "Two-Round System")
@@ -291,6 +330,7 @@ summary.tworound_result <- function(x, digits = 1, ...) {
 
 ################################################################################
 # Internal formatter
+#' @noRd
 .tworound_pretty_print <- function(x, digits = 1, title = "Two-Round System") {
 
   #-----------------------------------------------------------------------------
