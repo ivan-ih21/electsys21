@@ -1,4 +1,36 @@
 ################################################################################
+#' First-Past-The-Post voting
+#'
+#' Runs a First-Past-The-Post election. Each voter contributes a single
+#' first-preference vote, and the candidate receiving the most first-preference
+#' votes wins. The function accepts ranking, utility (score) or approval
+#' ballots, reduces each ballot to its single top choice, tallies the
+#' first-preference votes, and resolves any tie for the lead according to
+#' `ties`.
+#'
+#' @inheritParams voting-params
+#'
+#' @return An object of class `"fptp_result"`, a list with elements:
+#'   - `summary`: a data frame of candidates ordered by votes, with columns
+#'     `candidate`, `vote`, `percentage` (share of valid votes) and `rank`.
+#'   - `winners`: a character vector of the winning candidate name(s).
+#'   - `n_voters`: the total number of voters (rows of `x`).
+#'   - `n_candidates`: the total number of candidates (columns of `x`).
+#'   - `method`: a list recording the inferred `type` and the `ties` rule used.
+#'   - `ranks`: optionally, the derived ranking matrix, present only when
+#'     `return_ranks = TRUE`.
+#'
+#'   Print the object or call [summary()] on it for a formatted results table.
+#'
+#' @seealso [borda()], [irv()], [condorcet()]
+#'
+#' @examples
+#' ballots <- gen_ranks(n_voters = 20, n_candidates = 4, seed = 1)
+#' fptp(ballots)
+#'
+#' fptp(ballots, ties = "lexicographic", return_ranks = TRUE)
+#'
+#' @export
 fptp <- function(
     x,
     type = c("auto", "rank", "utility", "approval"),
@@ -144,6 +176,7 @@ fptp <- function(
 
 ################################################################################
 # Printer for fptp_result
+#' @export
 print.fptp_result <- function(x, digits = 1, ...) {
   stopifnot(inherits(x, "fptp_result"))
   .fptp_pretty_print(x, digits = digits)
@@ -153,6 +186,7 @@ print.fptp_result <- function(x, digits = 1, ...) {
 
 ################################################################################
 # Summary for fptp_result
+#' @export
 summary.fptp_result <- function(x, digits = 1, ...) {
   stopifnot(inherits(x, "fptp_result"))
   .fptp_pretty_print(x, digits = digits, title = "First-Past-The-Post voting")
@@ -162,6 +196,7 @@ summary.fptp_result <- function(x, digits = 1, ...) {
 
 ################################################################################
 # Internal formatter
+#' @noRd
 .fptp_pretty_print <- function(x, digits = 1, title = "First-Past-The-Post voting") {
   #-----------------------------------------------------------------------------
   # Summary table
