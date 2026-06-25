@@ -1,11 +1,59 @@
 ################################################################################
+#' Approval Voting
+#'
+#' Runs an election under Approval Voting, where each voter may approve any
+#' number of candidates and the candidate with the most approvals wins. When
+#' the input is not already a binary approval matrix, `rule` converts the
+#' rankings or utility scores into approvals. Approvals are then summed across
+#' voters and ties for the top approval count are resolved according to `ties`.
+#'
+#' @inheritParams voting-params
+#' @param rule The approval rule used to convert non-approval ballots (ranks or
+#'   utilities) into approvals; ignored when the input is already an approval
+#'   matrix. May be a preset string -- `"mean"` (the default; score
+#'   above the voter's mean), `"median"` (above the voter's median), `"topk"`
+#'   (top `k` by score, `k` from `threshold`), `"topp"` (top proportion by
+#'   score, `p` from `threshold`), `"quantile"` (above the `threshold`-th
+#'   quantile), `"above0"` (positive score, or all ranked candidates for rank
+#'   input), or `"nonzero"` (non-zero score, or all ranked candidates for rank
+#'   input) -- or a numeric scalar/vector of length `ncol(x)` (eligible if
+#'   `score > rule` for utility, or `rank <= rule` for rank input), or a custom
+#'   function with signature `function(row, inferred_type)` returning a logical
+#'   vector of length `ncol(x)`.
+#' @param threshold Single numeric value (or `NULL`, the default) parameterizing
+#'   the `"topk"` (number of candidates to approve), `"topp"` (proportion in
+#'   `[0, 1]`) and `"quantile"` (quantile in `[0, 1]`) presets. Ignored for all
+#'   other rules.
+#' @param return_approvals Logical; if `TRUE`, the result additionally includes
+#'   the derived binary approval matrix as `$approvals`. Defaults to `FALSE`.
+#'
+#' @return An object of class `"approval_result"`, a list with elements
+#'   `summary` (a data frame of candidates, approval counts, percentages and
+#'   ranks), `winners` (the winning candidate name(s)), `n_voters`, `n_valid`,
+#'   `n_candidates` and `method` (a list recording the inferred `type`, `rule`,
+#'   `ties` and `threshold`). When `return_approvals = TRUE`, the derived binary
+#'   approval matrix is also returned as `$approvals`. Print the object or call
+#'   [summary()] on it for a formatted results table.
+#'
+#' @seealso [fptp()], [borda()], [tworound()]
+#'
+#' @examples
+#' # Direct approval ballots
+#' ballots <- gen_approvals(n_voters = 50, n_candidates = 4, seed = 1)
+#' approval(ballots)
+#'
+#' # Utility ballots converted to approvals via a rule
+#' scores <- gen_utilities(n_voters = 50, n_candidates = 4, seed = 1)
+#' approval(scores, type = "utility", rule = "mean")
+#'
+#' @export
 approval <- function(
-  x,
-  type = c("auto", "rank", "utility", "approval"),
-  rule = c("mean", "median", "topk", "topp", "quantile", "above0", "nonzero"),
-  threshold = NULL,
-  ties = c("random", "lexicographic", "all"),
-  return_approvals = FALSE
+    x,
+    type = c("auto", "rank", "utility", "approval"),
+    rule = c("mean", "median", "topk", "topp", "quantile", "above0", "nonzero"),
+    threshold = NULL,
+    ties = c("random", "lexicographic", "all"),
+    return_approvals = FALSE
 ) {
 
   #-----------------------------------------------------------------------------
@@ -41,7 +89,7 @@ approval <- function(
                            rank = "rank",
                            utility = "utility",
                            approval = "approval"
-                           )
+  )
   #-----------------------------------------------------------------------------
 
   #-----------------------------------------------------------------------------
@@ -106,9 +154,9 @@ approval <- function(
       if (length(pos)) s[pos] <- -row[pos]
       s
     } else # utility
-      {
+    {
       as.numeric(row)
-      }
+    }
 
     score_valid <- which(!is.na(scores))
     valid_scores <- scores[score_valid]
@@ -304,6 +352,7 @@ approval <- function(
 
 ################################################################################
 # Printer for approval_result
+#' @export
 print.approval_result <- function(x, digits = 1, ...) {
   stopifnot(inherits(x, "approval_result"))
   .approval_pretty_print(x, digits = digits)
@@ -313,6 +362,7 @@ print.approval_result <- function(x, digits = 1, ...) {
 
 ################################################################################
 # Summary for approval_result
+#' @export
 summary.approval_result <- function(x, digits = 1, ...) {
   stopifnot(inherits(x, "approval_result"))
   .approval_pretty_print(x, digits = digits, title = "Approval Voting")
@@ -322,6 +372,7 @@ summary.approval_result <- function(x, digits = 1, ...) {
 
 ################################################################################
 # Internal formatter
+#' @noRd
 .approval_pretty_print <- function(x, digits = 1, title = "Approval Voting") {
   #-----------------------------------------------------------------------------
   # Summary table

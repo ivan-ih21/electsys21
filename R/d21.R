@@ -1,4 +1,57 @@
 ################################################################################
+#' D21 Voting
+#'
+#' Runs the D21 method. Each voter is granted a fixed number of **plus votes**
+#' (1, 2, or 3, depending on the number of candidates) and uses them to support
+#' their most preferred candidates. When the input is not already an approval
+#' matrix, each voter's eligible candidates are first selected from rankings or
+#' utility scores using a configurable `rule`, then capped to the allowed number
+#' of plus votes, keeping the highest-scored candidates. The candidate with the
+#' most plus votes across all voters wins.
+#'
+#' @inheritParams voting-params
+#' @param rule The approval rule used to convert non-approval ballots (ranks or
+#'   utilities) into eligibility for plus votes; ignored when the input is
+#'   already an approval matrix. May be a preset string -- `"mean"` (the
+#'   default; score above the voter's mean), `"median"` (above the voter's
+#'   median), `"topk"` (top `k` by score, `k` from `threshold`), `"topp"` (top
+#'   proportion by score, `p` from `threshold`), `"quantile"` (above the
+#'   `threshold`-th quantile), `"above0"` (positive score, or all ranked
+#'   candidates for rank input), or `"nonzero"` (non-zero score, or all ranked
+#'   candidates for rank input) -- or a numeric scalar/vector of length
+#'   `ncol(x)` (eligible if `score > rule` for utility, or `rank <= rule` for
+#'   rank input), or a custom function with signature `function(row, inferred_type)`
+#'   returning a logical vector of length `ncol(x)`.
+#' @param threshold Single numeric value (or `NULL`, the default) parameterizing
+#'   the `"topk"` (number of candidates to approve), `"topp"` (proportion in
+#'   `[0, 1]`) and `"quantile"` (quantile in `[0, 1]`) presets. Ignored for all
+#'   other rules.
+#' @param overflow Character string giving the tie-breaking rule applied per
+#'   voter when more candidates are eligible than the plus-vote budget allows
+#'   (and at the `"topk"`/`"topp"` cutoffs). One of `"random"` (the default;
+#'   sample among tied candidates) or `"lexicographic"` (choose alphabetically
+#'   by name).
+#' @param return_approvals Logical; if `TRUE`, the result additionally includes
+#'   the derived binary approval matrix as `$approvals`. Defaults to `FALSE`.
+#'
+#' @return An object of class `"d21_result"`: a list with elements `summary`
+#'   (a data frame of candidates, plus-vote counts, percentages and ranks),
+#'   `winners` (name(s) of the winning candidate(s)), `n_voters`, `n_valid`,
+#'   `n_candidates`, and `method` (a list recording `type`, `rule`, `ties`,
+#'   `threshold`, `plus_votes` and `overflow`). If `return_approvals = TRUE`,
+#'   the element `approvals` (the derived approval matrix) is also included.
+#'   Print the object or call [summary()] on it for a formatted results table.
+#'
+#' @seealso [d21_minus()], [approval()], [fptp()]
+#'
+#' @examples
+#' u <- gen_utilities(n_voters = 40, n_candidates = 5, seed = 1)
+#' d21(u, type = "utility")
+#'
+#' r <- gen_ranks(n_voters = 40, n_candidates = 5, seed = 1)
+#' d21(r, type = "rank", rule = "topk", threshold = 2)
+#'
+#' @export
 d21 <- function(
     x,
     type = c("auto", "rank", "utility", "approval"),
@@ -375,6 +428,7 @@ d21 <- function(
 
 ################################################################################
 # Printer for d21_result
+#' @export
 print.d21_result <- function(x, digits = 1, ...) {
   stopifnot(inherits(x, "d21_result"))
   .d21_pretty_print(x, digits = digits)
@@ -384,6 +438,7 @@ print.d21_result <- function(x, digits = 1, ...) {
 
 ################################################################################
 # Summary for d21_result
+#' @export
 summary.d21_result <- function(object, digits = 1, ...) {
   stopifnot(inherits(object, "d21_result"))
   .d21_pretty_print(object, digits = digits, title = "D21 voting")
@@ -393,6 +448,7 @@ summary.d21_result <- function(object, digits = 1, ...) {
 
 ################################################################################
 # Internal formatter
+#' @noRd
 .d21_pretty_print <- function(x, digits = 1, title = "D21 voting") {
   #-----------------------------------------------------------------------------
   # Summary table

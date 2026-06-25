@@ -1,4 +1,57 @@
 ################################################################################
+#' Instant Runoff Voting
+#'
+#' Runs an Instant Runoff Voting. Each voter ranks the candidates, and in each
+#' round the candidate with the fewest first-preference votes among the active
+#' candidates is eliminated and their ballots transfer to the next-ranked active
+#' candidate. The process repeats until a candidate's share of the active
+#' (non-exhausted) votes **strictly exceeds** the `majority` threshold or only
+#' one candidate remains.
+#'
+#' @inheritParams voting-params
+#' @param elim_ties Character string giving the tie-breaking rule applied at the
+#'   elimination step when two or more active candidates share the lowest vote
+#'   count in a round. One of `"random"` (the default; eliminate one tied
+#'   candidate at random), `"lexicographic"` (eliminate the alphabetically
+#'   first) or `"all"` (batch elimination: simultaneously remove every candidate
+#'   tied at the minimum).
+#' @param majority Single numeric value in `[0, 1]` giving the fraction of
+#'   active votes a candidate must **strictly exceed** to win a round. Defaults
+#'   to `0.5`, so a candidate needs more than 50% of the active votes.
+#' @param return_history Logical. If `TRUE`, the result gains a `$history`
+#'   element: a character matrix (`n_voters` x `n_rounds`) recording which active
+#'   candidate received each voter's vote in each round, or `NA` where the
+#'   ballot was exhausted. Defaults to `FALSE`.
+#'
+#' @return An object of class `"irv_result"`, a list with the elements:
+#'   - `summary`: a data frame with columns `candidate`, `vote`, `percentage`,
+#'     `rank` and `eliminated_in_round`, where `vote` and `percentage` reflect
+#'     each candidate's score at their last appearance.
+#'   - `winners`: character vector of the winning candidate name(s).
+#'   - `n_voters`: total number of voters.
+#'   - `n_valid`: number of voters with at least one valid preference.
+#'   - `n_candidates`: total number of candidates.
+#'   - `rounds`: a list with one entry per round (active set, vote counts,
+#'     percentages, totals, exhausted ballots and candidate(s) eliminated).
+#'   - `counts`: candidate-by-round matrix of integer vote counts.
+#'   - `percentages`: candidate-by-round matrix of active-vote percentages.
+#'   - `method`: a list recording `type`, `ties`, `elim_ties` and `majority`.
+#'   - `history`: present only when `return_history = TRUE` (see that argument).
+#'
+#'   Print the object or call [summary()] on it for a formatted results table.
+#'
+#' @seealso [fptp()], [tworound()], [borda()]
+#'
+#' @examples
+#' ballots <- gen_ranks(n_voters = 40, n_candidates = 4, seed = 1)
+#' result <- irv(ballots)
+#' result
+#'
+#' # Deterministic tie-breaking and round-by-round history
+#' irv(ballots, ties = "lexicographic", elim_ties = "lexicographic",
+#'     return_history = TRUE)
+#'
+#' @export
 irv <- function(
     x,
     type = c("auto", "rank", "utility", "approval"),
@@ -282,6 +335,7 @@ irv <- function(
 
 ################################################################################
 # Printer for irv_result
+#' @export
 print.irv_result <- function(x, digits = 1, ...) {
   stopifnot(inherits(x, "irv_result"))
   .irv_pretty_print(x, digits = digits)
@@ -291,6 +345,7 @@ print.irv_result <- function(x, digits = 1, ...) {
 
 ################################################################################
 # Summary for irv_result
+#' @export
 summary.irv_result <- function(object, digits = 1, ...) {
   stopifnot(inherits(object, "irv_result"))
   .irv_pretty_print(object, digits = digits, title = "IRV (Instant Runoff)")
@@ -300,6 +355,7 @@ summary.irv_result <- function(object, digits = 1, ...) {
 
 ################################################################################
 # Internal formatter
+#' @noRd
 .irv_pretty_print <- function(x, digits = 1, title = "IRV (Instant Runoff)") {
 
   #-----------------------------------------------------------------------------
@@ -358,8 +414,8 @@ summary.irv_result <- function(object, digits = 1, ...) {
   pct_cells       <- matrix(paste0(format(round(pct_mat, digits), nsmall = digits), "%"),
                             nrow = n_cand_rows, ncol = n_rounds)
   elim_cells      <- vapply(elim_round, function(e) {
-                       if (is.na(e)) "—" else sprintf("R%d", e)
-                     }, character(1L))
+    if (is.na(e)) "—" else sprintf("R%d", e)
+  }, character(1L))
   #-----------------------------------------------------------------------------
 
   #-----------------------------------------------------------------------------

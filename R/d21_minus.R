@@ -1,4 +1,67 @@
 ################################################################################
+#' D21 Voting with minus votes
+#'
+#' Runs the single-winner D21 method with minus votes. Each voter receives a
+#' fixed number of plus votes (1, 2, or 3, depending on the number of
+#' candidates) to support their most preferred candidates, and voters who use at
+#' least two plus votes may additionally cast one minus vote against the
+#' candidate they most oppose. Eligibility for plus votes is derived from ranks
+#' or utility scores via a configurable `rule` and then capped to the allowed
+#' number; the minus vote targets the lowest-scored candidate the voter did not
+#' plus. The candidate with the highest net total wins.
+#'
+#' @inheritParams voting-params
+#' @param rule The approval rule used to convert non-approval ballots (ranks or
+#'   utilities) into eligibility for plus votes; ignored when the input is
+#'   already an approval matrix. May be a preset string -- `"mean"` (the
+#'   default; score above the voter's mean), `"median"` (above the voter's
+#'   median), `"topk"` (top `k` by score, `k` from `threshold`), `"topp"` (top
+#'   proportion by score, `p` from `threshold`), `"quantile"` (above the
+#'   `threshold`-th quantile), `"above0"` (positive score, or all ranked
+#'   candidates for rank input), or `"nonzero"` (non-zero score, or all ranked
+#'   candidates for rank input) -- or a numeric scalar/vector of length
+#'   `ncol(x)` (eligible if `score > rule` for utility, or `rank <= rule` for
+#'   rank input), or a custom function with signature `function(row, inferred_type)`
+#'   returning a logical vector of length `ncol(x)`.
+#' @param threshold Single numeric value (or `NULL`, the default) parameterizing
+#'   the `"topk"` (number of candidates to approve), `"topp"` (proportion in
+#'   `[0, 1]`) and `"quantile"` (quantile in `[0, 1]`) presets. Ignored for all
+#'   other rules.
+#' @param minus_prob Numeric in `[0, 1]` (default `1`) giving the probability
+#'   that a voter eligible for a minus vote actually casts it. Setting
+#'   `minus_prob = 0` suppresses all minus votes.
+#' @param overflow Character string giving the tie-breaking rule used at the
+#'   plus-vote cap, within the `"topk"`/`"topp"` rules, and when selecting the
+#'   worst candidate for the minus vote. One of `"random"` (the default; sample
+#'   among tied candidates) or `"lexicographic"` (choose alphabetically by name).
+#' @param return_approvals Logical. If `TRUE`, the result additionally includes
+#'   the per-voter `$plus_matrix`, `$minus_matrix` and `$total_matrix`. Defaults
+#'   to `FALSE`.
+#'
+#' @return An object of class `"d21_minus_result"`: a list with elements
+#'   `summary` (a data frame of per-candidate plus, minus and total counts with
+#'   percentages and ranks), `winners`, `n_voters`, `n_valid`, `n_candidates`
+#'   and `method` (a list recording `type`, `rule`, `ties`, `threshold`,
+#'   `plus_votes`, `minus_votes`, `minus_prob` and `overflow`). When
+#'   `return_approvals = TRUE`, the elements `plus_matrix`, `minus_matrix` and
+#'   `total_matrix` are also included. Print the object or call [summary()] on
+#'   it for a formatted results table.
+#'
+#' @seealso [d21()], [approval()], [borda()]
+#'
+#' @examples
+#' # Utility ballots with 5 candidates (2 plus votes, 1 minus vote)
+#' u <- gen_utilities(n_voters = 50, n_candidates = 5, seed = 1)
+#' d21_minus(u)
+#'
+#' # Ranking ballots, eligible = explicitly ranked candidates
+#' r <- gen_ranks(n_voters = 50, n_candidates = 6, seed = 1)
+#' d21_minus(r, rule = "above0", ties = "lexicographic")
+#'
+#' # Suppress the minus phase (equivalent to plain D21)
+#' d21_minus(u, minus_prob = 0)
+#'
+#' @export
 d21_minus <- function(
     x,
     type = c("auto", "rank", "utility", "approval"),
@@ -479,6 +542,7 @@ d21_minus <- function(
 
 ################################################################################
 # Printer for d21_minus_result
+#' @export
 print.d21_minus_result <- function(x, digits = 1, ...) {
   stopifnot(inherits(x, "d21_minus_result"))
   .d21_minus_pretty_print(x, digits = digits)
@@ -488,6 +552,7 @@ print.d21_minus_result <- function(x, digits = 1, ...) {
 
 ################################################################################
 # Summary for d21_minus_result
+#' @export
 summary.d21_minus_result <- function(object, digits = 1, ...) {
   stopifnot(inherits(object, "d21_minus_result"))
   .d21_minus_pretty_print(object, digits = digits, title = "D21 with minus vote")
@@ -497,6 +562,7 @@ summary.d21_minus_result <- function(object, digits = 1, ...) {
 
 ################################################################################
 # Internal formatter
+#' @noRd
 .d21_minus_pretty_print <- function(x, digits = 1, title = "D21 with minus vote") {
   #-----------------------------------------------------------------------------
   # Summary table

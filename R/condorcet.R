@@ -1,4 +1,39 @@
 ################################################################################
+#' Condorcet Method
+#'
+#' Determines the winner by comparing every candidate head-to-head against
+#' every other candidate. In each pairwise contest the candidate preferred by a
+#' strict majority of voters wins; the **Condorcet winner** is the candidate who
+#' beats all others. Such a candidate need not exist, in which case `winners` is
+#' empty. A Copeland-style score (wins minus losses) is always computed so the
+#' full field is ordered even when no Condorcet winner exists.
+#'
+#' @inheritParams voting-params
+#' @param return_pairwise Logical. If `TRUE`, two extra components are attached
+#'   to the result: `$pairwise`, the candidate-by-candidate matrix where
+#'   `[i, j]` is `1` iff candidate `i` beats candidate `j` head-to-head, and
+#'   `$pairwise_margins`, the matrix whose `[i, j]` entry counts the voters who
+#'   prefer candidate `i` over candidate `j`. Defaults to `FALSE`.
+#'
+#' @return An object of class `"condorcet_result"`, a list with elements
+#'   `summary` (a data frame of candidates ordered by Copeland score, with
+#'   columns `candidate`, `wins`, `losses`, `ties`, `rank` and `status`),
+#'   `winners` (name(s) of the Condorcet winner, or `character(0)` if none),
+#'   `losers` (name(s) of the Condorcet loser, or `character(0)` if none),
+#'   `n_voters`, `n_valid`, `n_candidates`, and `method` (a list recording the
+#'   inferred `type` and the `ties` rule). When `return_pairwise = TRUE` the
+#'   elements `pairwise` and `pairwise_margins` are also included. Print the
+#'   object or call [summary()] on it for a formatted results table.
+#'
+#' @seealso [borda()], [irv()], [approval()]
+#'
+#' @examples
+#' ballots <- gen_ranks(n_voters = 30, n_candidates = 4, seed = 1)
+#' condorcet(ballots)
+#'
+#' condorcet(ballots, return_pairwise = TRUE)
+#'
+#' @export
 condorcet <- function(
     x,
     type = c("auto", "rank", "utility", "approval"),
@@ -197,6 +232,7 @@ condorcet <- function(
 
 ################################################################################
 # Printer for condorcet_result
+#' @export
 print.condorcet_result <- function(x, digits = 1, ...) {
   stopifnot(inherits(x, "condorcet_result"))
   .condorcet_pretty_print(x, digits = digits)
@@ -206,6 +242,7 @@ print.condorcet_result <- function(x, digits = 1, ...) {
 
 ################################################################################
 # Summary for condorcet_result
+#' @export
 summary.condorcet_result <- function(object, digits = 1, ...) {
   stopifnot(inherits(object, "condorcet_result"))
   .condorcet_pretty_print(object, digits = digits, title = "Condorcet")
@@ -215,6 +252,7 @@ summary.condorcet_result <- function(object, digits = 1, ...) {
 
 ################################################################################
 # Internal formatter
+#' @noRd
 .condorcet_pretty_print <- function(x, digits = 1, title = "Condorcet") {
 
   #-----------------------------------------------------------------------------

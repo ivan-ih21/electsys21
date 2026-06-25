@@ -1,4 +1,38 @@
 ################################################################################
+#' Borda Count
+#'
+#' Runs an election using the Borda Count. Each voter's ballot is turned into
+#' a ranking and each candidate earns points according to their position: with
+#' `n` candidates, a candidate ranked first receives `n - 1` points, the second
+#' `n - 2`, down to `0` for the last. Points are summed across all voters and
+#' the candidate with the highest total wins. Utility and approval ballots are
+#' converted to rankings internally before scoring.
+#'
+#' @inheritParams voting-params
+#' @param return_scores Logical. If `TRUE`, the per-voter Borda points matrix
+#'   (`n_voters` by `n_candidates`) used for scoring is attached to the result
+#'   as `$scores`. Defaults to `FALSE`.
+#'
+#' @return An object of class `"borda_result"`, a list with elements:
+#'   `summary` (a data frame of candidates ordered by total score, with columns
+#'   `candidate`, `score`, `percentage` and `rank`), `winners` (a character
+#'   vector of the winning candidate name(s), or `character(0)` if no voter
+#'   provided a valid preference), `n_voters`, `n_valid`, `n_candidates`, and
+#'   `method` (a list recording the inferred `type` and the `ties` rule).
+#'   Optionally includes `$ranks` (when `return_ranks = TRUE`) and `$scores`
+#'   (when `return_scores = TRUE`). Print the object or call [summary()] on it
+#'   for a formatted results table.
+#'
+#' @seealso [fptp()], [condorcet()], [approval()]
+#'
+#' @examples
+#' ballots <- gen_ranks(n_voters = 50, n_candidates = 4, seed = 1)
+#' borda(ballots)
+#'
+#' # Resolve ties alphabetically and keep the derived ranking matrix
+#' borda(ballots, ties = "lexicographic", return_ranks = TRUE)
+#'
+#' @export
 borda <- function(
     x,
     type = c("auto", "rank", "utility", "approval"),
@@ -155,6 +189,7 @@ borda <- function(
 
 ################################################################################
 # Printer for borda_result
+#' @export
 print.borda_result <- function(x, digits = 1, ...) {
   stopifnot(inherits(x, "borda_result"))
   .borda_pretty_print(x, digits = digits)
@@ -164,6 +199,7 @@ print.borda_result <- function(x, digits = 1, ...) {
 
 ################################################################################
 # Summary for borda_result
+#' @export
 summary.borda_result <- function(object, digits = 1, ...) {
   stopifnot(inherits(object, "borda_result"))
   .borda_pretty_print(object, digits = digits, title = "Borda Count")
@@ -173,6 +209,7 @@ summary.borda_result <- function(object, digits = 1, ...) {
 
 ################################################################################
 # Internal formatter
+#' @noRd
 .borda_pretty_print <- function(x, digits = 1, title = "Borda Count") {
 
   #-----------------------------------------------------------------------------

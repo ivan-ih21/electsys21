@@ -1,4 +1,52 @@
 ################################################################################
+#' Majority Judgment
+#'
+#' Runs the Majority Judgment voting. Each voter assigns every candidate an
+#' absolute grade on a common ordinal scale (`1` = worst, `K` = best), and for
+#' each candidate the **median grade** across voters is computed (using the lower
+#' of the two middle grades when the count is even). The candidate with the
+#' highest median wins. Ties on the median are resolved either by the
+#' majority-gauge proportions or by the iterative "majority sequence" rule, which
+#' repeatedly removes the median grade until the candidates' sequences diverge.
+#'
+#' @inheritParams voting-params
+#' @param type Character string giving the ballot type. One of `"auto"` (the
+#'   default, detected from `x`), `"rank"`, `"utility"`, `"approval"` or
+#'   `"score"`. The `"score"` type treats each entry directly as an integer
+#'   grade.
+#' @param num_categories Integer `>= 2` giving the number of grade levels `K`,
+#'   or `NULL` (the default) to choose a sensible value from the inferred type:
+#'   `2` for approval, the number of candidates for rank, `min(5, max(2,
+#'   n_candidates))` for utility, and the maximum observed grade for score.
+#'   Approval is always coerced to `2`, rank is capped at the number of
+#'   candidates (both with a warning), and a score `K` below the maximum
+#'   observed grade is an error.
+#' @param median_tie_break Character string giving the rule used to separate
+#'   candidates that share the same median grade. One of `"gauge"` (the default;
+#'   compares the majority-gauge proportions of voters above and below the
+#'   median) or `"iterative"` (compares the majority sequences obtained by
+#'   repeatedly removing the median grade).
+#' @param return_grades Logical. If `TRUE`, the internal integer grade matrix
+#'   (voters by candidates, on the `1..K` scale) is attached to the result as
+#'   `$grades`. Defaults to `FALSE`.
+#'
+#' @return An object of class `"majority_judgement_result"`: a list with
+#'   elements `summary` (a data frame with columns `candidate`, `median`,
+#'   `p_above`, `p_below` and `rank`), `winners`, `n_voters`, `n_valid`,
+#'   `n_candidates`, `grade_distribution` and `method` (itself a list of `type`,
+#'   `num_categories`, `median_tie_break` and `ties`), plus `grades` when
+#'   `return_grades = TRUE`. Print the object or call [summary()] on it for a
+#'   formatted results table.
+#'
+#' @seealso [borda()], [approval()], [condorcet()]
+#'
+#' @examples
+#' utilities <- gen_utilities(n_voters = 30, n_candidates = 4, seed = 1)
+#' majority_judgement(utilities)
+#'
+#' majority_judgement(utilities, num_categories = 5, median_tie_break = "iterative")
+#'
+#' @export
 majority_judgement <- function(
     x,
     type = c("auto", "rank", "utility", "approval", "score"),
@@ -495,6 +543,7 @@ majority_judgement <- function(
 
 ################################################################################
 # Printer for majority_judgement_result
+#' @export
 print.majority_judgement_result <- function(x, digits = 1, ...) {
   stopifnot(inherits(x, "majority_judgement_result"))
   .majority_judgement_pretty_print(x, digits = digits)
@@ -504,6 +553,7 @@ print.majority_judgement_result <- function(x, digits = 1, ...) {
 
 ################################################################################
 # Summary for majority_judgement_result
+#' @export
 summary.majority_judgement_result <- function(object, digits = 1, ...) {
   stopifnot(inherits(object, "majority_judgement_result"))
   .majority_judgement_pretty_print(object, digits = digits, title = "Majority Judgement")
@@ -513,6 +563,7 @@ summary.majority_judgement_result <- function(object, digits = 1, ...) {
 
 ################################################################################
 # Internal formatter
+#' @noRd
 .majority_judgement_pretty_print <- function(x, digits = 1, title = "Majority Judgement") {
 
   #-----------------------------------------------------------------------------
