@@ -1,4 +1,38 @@
-################################################################################
+#' Generate random approval ballots
+#'
+#' Simulates an approval-ballot matrix for testing and demonstration. Each
+#' candidate is independently approved by each voter with probability
+#' `p_approve`, and voters may abstain entirely.
+#'
+#' @param n_voters Single positive integer. Number of voters (matrix rows).
+#' @param n_candidates Single positive integer. Number of candidates (matrix
+#'   columns).
+#' @param p_approve Single number in `[0, 1]`. Probability that a voter
+#'   approves any given candidate. Defaults to `0.5`.
+#' @param p_abstain Single number in `[0, 1]`. Probability that a voter
+#'   abstains entirely, leaving that whole row `NA`. Defaults to `0`.
+#' @param candidate_names `NULL` or a character vector of length
+#'   `n_candidates` giving the column names. Defaults to `NULL`
+#'   (`Candidate_1`, `Candidate_2`, ...).
+#' @param voter_names `NULL` or a character vector of length `n_voters` giving
+#'   the row names. Defaults to `NULL` (`Voter_1`, `Voter_2`, ...).
+#' @param seed `NULL` or a single numeric value passed to [set.seed()] for
+#'   reproducible output. Defaults to `NULL`.
+#'
+#' @return A logical matrix with `n_voters` rows and `n_candidates` columns:
+#'   `TRUE` marks an approved candidate, `FALSE` a non-approved one, and an
+#'   abstaining voter's row is all `NA`. Suitable as the `x` argument of the
+#'   voting functions.
+#'
+#' @seealso [gen_ranks()], [gen_utilities()]
+#'
+#' @examples
+#' gen_approvals(n_voters = 5, n_candidates = 3, seed = 1)
+#'
+#' # Stricter voters approve fewer candidates
+#' gen_approvals(n_voters = 5, n_candidates = 3, p_approve = 0.25, seed = 1)
+#'
+#' @export
 gen_approvals <- function(
     n_voters,
     n_candidates,
@@ -108,4 +142,3 @@ gen_approvals <- function(
   return(a)
   #-----------------------------------------------------------------------------
 }
-################################################################################

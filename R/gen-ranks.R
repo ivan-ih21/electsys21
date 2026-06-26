@@ -1,4 +1,40 @@
 ################################################################################
+#' Generate random ranking ballots
+#'
+#' Simulates a ranking-ballot matrix for testing and demonstration. Latent
+#' utilities are drawn uniformly at random for every voter-candidate pair and
+#' converted into strict ranks (rank 1 = most preferred). Optionally truncates
+#' each ballot to its top `n_ranked` candidates and lets voters abstain.
+#'
+#' @param n_voters Single positive integer. Number of voters (matrix rows).
+#' @param n_candidates Single positive integer. Number of candidates (matrix
+#'   columns).
+#' @param n_ranked `NULL` or a single positive integer. If set, each voter
+#'   ranks only their top `n_ranked` candidates and the remaining entries are
+#'   set to `NA`. Defaults to `NULL` (every candidate is ranked).
+#' @param p_abstain Single number in `[0, 1]`. Probability that a voter
+#'   abstains entirely, leaving that whole row `NA`. Defaults to `0`.
+#' @param candidate_names `NULL` or a character vector of length
+#'   `n_candidates` giving the column names. Defaults to `NULL`
+#'   (`Candidate_1`, `Candidate_2`, ...).
+#' @param voter_names `NULL` or a character vector of length `n_voters` giving
+#'   the row names. Defaults to `NULL` (`Voter_1`, `Voter_2`, ...).
+#' @param seed `NULL` or a single numeric value passed to [set.seed()] for
+#'   reproducible output. Defaults to `NULL`.
+#'
+#' @return A numeric matrix with `n_voters` rows and `n_candidates` columns
+#'   holding ranks (`1` = most preferred); unranked or abstained entries are
+#'   `NA`. Suitable as the `x` argument of the voting functions.
+#'
+#' @seealso [gen_utilities()], [gen_approvals()]
+#'
+#' @examples
+#' gen_ranks(n_voters = 5, n_candidates = 3, seed = 1)
+#'
+#' # Truncated ballots: each voter ranks only their top 2 candidates
+#' gen_ranks(n_voters = 5, n_candidates = 4, n_ranked = 2, seed = 1)
+#'
+#' @export
 gen_ranks <- function(
     n_voters,
     n_candidates,
@@ -8,7 +44,7 @@ gen_ranks <- function(
     voter_names = NULL,
     seed = NULL
 ) {
-  
+
   #-----------------------------------------------------------------------------
   # validate n_voters and n_candidates
   check_count <- function(value, name) {
@@ -18,11 +54,11 @@ gen_ranks <- function(
     }
     as.integer(round(value))
   }
-  
+
   n_voters <- check_count(n_voters, "n_voters")
   n_candidates <- check_count(n_candidates, "n_candidates")
   #-----------------------------------------------------------------------------
-  
+
   #-----------------------------------------------------------------------------
   # Validate n_ranked
   if (!is.null(n_ranked)) {
@@ -32,7 +68,7 @@ gen_ranks <- function(
     }
   }
   #-----------------------------------------------------------------------------
-  
+
   #-----------------------------------------------------------------------------
   # Validate p_abstain
   if (!is.numeric(p_abstain) || length(p_abstain) != 1L || is.na(p_abstain) ||
@@ -40,7 +76,7 @@ gen_ranks <- function(
     stop("`p_abstain` must be a single number in [0, 1].", call. = FALSE)
   }
   #-----------------------------------------------------------------------------
-  
+
   #-----------------------------------------------------------------------------
   # Validate names
   if (!is.null(candidate_names) &&
@@ -54,7 +90,7 @@ gen_ranks <- function(
          call. = FALSE)
   }
   #-----------------------------------------------------------------------------
-  
+
   #-----------------------------------------------------------------------------
   # Validate seed
   if (!is.null(seed)) {
@@ -64,7 +100,7 @@ gen_ranks <- function(
     set.seed(seed)
   }
   #-----------------------------------------------------------------------------
-  
+
   #-----------------------------------------------------------------------------
   # Latent utilities
   u <- matrix(
@@ -73,7 +109,7 @@ gen_ranks <- function(
     ncol = n_candidates
   )
   #-----------------------------------------------------------------------------
-  
+
   #-----------------------------------------------------------------------------
   # Choose voters who abstain entirely (whole row NA)
   abstain <- if (p_abstain > 0) {
@@ -82,7 +118,7 @@ gen_ranks <- function(
     rep(FALSE, n_voters)
   }
   #-----------------------------------------------------------------------------
-  
+
   #-----------------------------------------------------------------------------
   # Convert latent utilities to ranks
   r <- matrix(NA_real_, nrow = n_voters, ncol = n_candidates)
@@ -91,14 +127,14 @@ gen_ranks <- function(
     r[i, ] <- rank(-u[i, ], ties.method = "first")
   }
   #-----------------------------------------------------------------------------
-  
+
   #-----------------------------------------------------------------------------
   # Truncate to top-k if requested
   if (!is.null(n_ranked)) {
     r[r > n_ranked] <- NA_real_
   }
   #-----------------------------------------------------------------------------
-  
+
   #-----------------------------------------------------------------------------
   # Warning if any voter ends up with no ranked candidate
   empty_rows <- which(rowSums(!is.na(r)) == 0L)
@@ -108,7 +144,7 @@ gen_ranks <- function(
       length(empty_rows)), call. = FALSE)
   }
   #-----------------------------------------------------------------------------
-  
+
   #-----------------------------------------------------------------------------
   # Dimension names
   colnames(r) <- if (is.null(candidate_names)) {
@@ -122,7 +158,7 @@ gen_ranks <- function(
     voter_names
   }
   #-----------------------------------------------------------------------------
-  
+
   #-----------------------------------------------------------------------------
   return(r)
   #-----------------------------------------------------------------------------
