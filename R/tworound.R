@@ -321,10 +321,10 @@ print.tworound_result <- function(x, digits = 1, ...) {
 ################################################################################
 # Summary for tworound_result
 #' @export
-summary.tworound_result <- function(x, digits = 1, ...) {
-  stopifnot(inherits(x, "tworound_result"))
-  .tworound_pretty_print(x, digits = digits, title = "Two-Round System")
-  invisible(x)
+summary.tworound_result <- function(object, digits = 1, ...) {
+  stopifnot(inherits(object, "tworound_result"))
+  .tworound_pretty_print(object, digits = digits, title = "Two-Round System")
+  invisible(object)
 }
 ################################################################################
 

@@ -14,14 +14,14 @@ print_results_table <- function(candidate, value, percentage, rank, winners,
   #-----------------------------------------------------------------------------
   # Header
   cat("\n")
-  header_line <- strrep("═", table_width)
+  header_line <- strrep("\u2550", table_width)
   cat(header_line, "\n", sep = "")
   cat(" ", title, "\n", sep = "")
   cat(header_line, "\n", sep = "")
 
   cat(info_line, "\n")
 
-  separator_line <- strrep("─", table_width)
+  separator_line <- strrep("\u2500", table_width)
   cat(separator_line, "\n", sep = "")
   #-----------------------------------------------------------------------------
 

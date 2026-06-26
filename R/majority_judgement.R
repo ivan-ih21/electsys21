@@ -592,7 +592,7 @@ summary.majority_judgement_result <- function(object, digits = 1, ...) {
   #-----------------------------------------------------------------------------
   # Calculate dynamic width based on info line
   info_line <- sprintf(
-    " Voters: %d/%d valid  │  Candidates: %d  │  Grades: %d  │  Type: %s  │  Median tie-break: %s  │  Ties: %s",
+    " Voters: %d/%d valid  \u2502  Candidates: %d  \u2502  Grades: %d  \u2502  Type: %s  \u2502  Median tie-break: %s  \u2502  Ties: %s",
     n_valid, n_total, n_cand, K, x$method$type, x$method$median_tie_break, x$method$ties
   )
   info_width <- nchar(info_line)
@@ -602,7 +602,7 @@ summary.majority_judgement_result <- function(object, digits = 1, ...) {
 
   # Header
   cat("\n")
-  header_line <- strrep("═", table_width)
+  header_line <- strrep("\u2550", table_width)
   cat(header_line, "\n", sep = "")
   cat(" ", title, "\n", sep = "")
   cat(header_line, "\n", sep = "")
@@ -610,7 +610,7 @@ summary.majority_judgement_result <- function(object, digits = 1, ...) {
   # Info line
   cat(info_line, "\n")
 
-  separator_line <- strrep("─", table_width)
+  separator_line <- strrep("\u2500", table_width)
   cat(separator_line, "\n", sep = "")
   #-----------------------------------------------------------------------------
 

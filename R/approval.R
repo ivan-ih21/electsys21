@@ -363,10 +363,10 @@ print.approval_result <- function(x, digits = 1, ...) {
 ################################################################################
 # Summary for approval_result
 #' @export
-summary.approval_result <- function(x, digits = 1, ...) {
-  stopifnot(inherits(x, "approval_result"))
-  .approval_pretty_print(x, digits = digits, title = "Approval Voting")
-  invisible(x)
+summary.approval_result <- function(object, digits = 1, ...) {
+  stopifnot(inherits(object, "approval_result"))
+  .approval_pretty_print(object, digits = digits, title = "Approval Voting")
+  invisible(object)
 }
 ################################################################################
 

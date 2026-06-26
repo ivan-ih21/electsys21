@@ -375,7 +375,7 @@ summary.irv_result <- function(object, digits = 1, ...) {
 
   #-----------------------------------------------------------------------------
   # Info line
-  info_line <- sprintf(" Voters: %d/%d valid  │  Candidates: %d  │  Rounds: %d  │  Type: %s  │  Majority: %.2f  │  Ties: %s  │  Elim ties: %s",
+  info_line <- sprintf(" Voters: %d/%d valid  \u2502  Candidates: %d  \u2502  Rounds: %d  \u2502  Type: %s  \u2502  Majority: %.2f  \u2502  Ties: %s  \u2502  Elim ties: %s",
                        n_valid, n_total, n_cand, n_rounds,
                        x$method$type, x$method$majority,
                        x$method$ties, x$method$elim_ties)
@@ -385,10 +385,10 @@ summary.irv_result <- function(object, digits = 1, ...) {
   # Empty-result short-circuit
   if (n_rounds == 0L) {
     table_width <- max(60L, nchar(info_line) + 2)
-    cat("\n", strrep("═", table_width), "\n ", title, "\n",
-        strrep("═", table_width), "\n",
+    cat("\n", strrep("\u2550", table_width), "\n ", title, "\n",
+        strrep("\u2550", table_width), "\n",
         info_line, "\n",
-        strrep("─", table_width), "\n",
+        strrep("\u2500", table_width), "\n",
         " No valid votes.\n",
         "\nWinner(s): ", paste(x$winners, collapse = ", "), "\n\n", sep = "")
     return(invisible(NULL))
@@ -414,7 +414,7 @@ summary.irv_result <- function(object, digits = 1, ...) {
   pct_cells       <- matrix(paste0(format(round(pct_mat, digits), nsmall = digits), "%"),
                             nrow = n_cand_rows, ncol = n_rounds)
   elim_cells      <- vapply(elim_round, function(e) {
-    if (is.na(e)) "—" else sprintf("R%d", e)
+    if (is.na(e)) "\u2014" else sprintf("R%d", e)
   }, character(1L))
   #-----------------------------------------------------------------------------
 
@@ -456,8 +456,8 @@ summary.irv_result <- function(object, digits = 1, ...) {
   body_w      <- max(nchar(sample_hdr_c), nchar(sample_hdr_p)) - 1L          # strip trailing \n
   table_width <- max(nchar(info_line) + 2, body_w)
 
-  header_line    <- strrep("═", table_width)
-  separator_line <- strrep("─", table_width)
+  header_line    <- strrep("\u2550", table_width)
+  separator_line <- strrep("\u2500", table_width)
   #-----------------------------------------------------------------------------
 
   #-----------------------------------------------------------------------------

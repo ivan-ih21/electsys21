@@ -187,10 +187,10 @@ print.fptp_result <- function(x, digits = 1, ...) {
 ################################################################################
 # Summary for fptp_result
 #' @export
-summary.fptp_result <- function(x, digits = 1, ...) {
-  stopifnot(inherits(x, "fptp_result"))
-  .fptp_pretty_print(x, digits = digits, title = "First-Past-The-Post voting")
-  invisible(x)
+summary.fptp_result <- function(object, digits = 1, ...) {
+  stopifnot(inherits(object, "fptp_result"))
+  .fptp_pretty_print(object, digits = digits, title = "First-Past-The-Post voting")
+  invisible(object)
 }
 ################################################################################
 

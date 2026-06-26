@@ -496,7 +496,7 @@ summary.d21_result <- function(object, digits = 1, ...) {
 
   #-----------------------------------------------------------------------------
   # Info line
-  info_line <- sprintf(" Votes: %d/%d valid  │  Candidates: %d  │  Plus votes: %d  │  Type: %s  │  Rule: %s  │  Threshold: %s  │  Ties: %s  │  Overflow: %s",
+  info_line <- sprintf(" Votes: %d/%d valid  \u2502  Candidates: %d  \u2502  Plus votes: %d  \u2502  Type: %s  \u2502  Rule: %s  \u2502  Threshold: %s  \u2502  Ties: %s  \u2502  Overflow: %s",
                        n_valid, n_total, n_cand, plus_votes,
                        x$method$type, rule_chr, thr_chr, x$method$ties, x$method$overflow)
   #-----------------------------------------------------------------------------

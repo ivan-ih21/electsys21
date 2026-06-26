@@ -236,7 +236,7 @@ summary.borda_result <- function(object, digits = 1, ...) {
 
   #-----------------------------------------------------------------------------
   # Info line
-  info_line <- sprintf(" Voters: %d/%d valid  │  Candidates: %d  │  Type: %s  │  Ties: %s",
+  info_line <- sprintf(" Voters: %d/%d valid  \u2502  Candidates: %d  \u2502  Type: %s  \u2502  Ties: %s",
                        n_valid, n_total, n_cand, x$method$type, x$method$ties)
   #-----------------------------------------------------------------------------
 

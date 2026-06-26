@@ -618,7 +618,7 @@ summary.d21_minus_result <- function(object, digits = 1, ...) {
 
   #-----------------------------------------------------------------------------
   # Calculate dynamic width based on info line
-  info_line <- sprintf(" Votes: %d/%d valid  │  Candidates: %d  │  Plus votes: %d  │  Minus votes: %d  │  Minus prob: %.2f  │  Type: %s  │  Rule: %s  │  Threshold: %s  │  Ties: %s  │  Overflow: %s",
+  info_line <- sprintf(" Votes: %d/%d valid  \u2502  Candidates: %d  \u2502  Plus votes: %d  \u2502  Minus votes: %d  \u2502  Minus prob: %.2f  \u2502  Type: %s  \u2502  Rule: %s  \u2502  Threshold: %s  \u2502  Ties: %s  \u2502  Overflow: %s",
                        n_valid, n_total, n_cand, plus_votes, minus_votes, minus_prob,
                        x$method$type, rule_chr, thr_chr, x$method$ties, x$method$overflow)
   info_width <- nchar(info_line)
@@ -631,7 +631,7 @@ summary.d21_minus_result <- function(object, digits = 1, ...) {
 
   # Header
   cat("\n")
-  header_line <- strrep("═", table_width)
+  header_line <- strrep("\u2550", table_width)
   cat(header_line, "\n", sep = "")
   cat(" ", title, "\n", sep = "")
   cat(header_line, "\n", sep = "")
@@ -639,7 +639,7 @@ summary.d21_minus_result <- function(object, digits = 1, ...) {
   # Info line
   cat(info_line, "\n")
 
-  separator_line <- strrep("─", table_width)
+  separator_line <- strrep("\u2500", table_width)
   cat(separator_line, "\n", sep = "")
   #-----------------------------------------------------------------------------
 
