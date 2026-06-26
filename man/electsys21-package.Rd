@@ -19,5 +19,10 @@ Useful links:
 \author{
 \strong{Maintainer}: Ivan Iakimov \email{ivan.iakimov@ih21.org}
 
+Authors:
+\itemize{
+  \item Ivan Iakimov \email{ivan.iakimov@ih21.org}
+}
+
 }
 \keyword{internal}
