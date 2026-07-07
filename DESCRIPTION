@@ -7,7 +7,6 @@ Authors@R:
 Description: Implements a range of voting methods and electoral systems for determining election winners, including the D21 Method, First-Past-The-Post, Two-round Runoff, Instant Runoff, the Borda Count, Approval Voting, Majority Judgment and the Condorcet Method. The functions accept several ballot formats - ranking, cardinal utilities, approvals and scores - with automatic detection of the input type, configurable tie-breaking and tidy summaries of the results.
 License: MIT + file LICENSE
 Encoding: UTF-8
-LazyData: true
 URL: https://github.com/ivan-ih21/electsys21
 BugReports: https://github.com/ivan-ih21/electsys21/issues
 Imports: 
