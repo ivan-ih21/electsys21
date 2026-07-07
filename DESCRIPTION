@@ -4,7 +4,16 @@ Title: Voting Methods for Ranked, Rated and Approval Ballots
 Version: 0.1.0
 Authors@R: 
     person("Ivan", "Iakimov", , "ivan.iakimov@ih21.org", role = c("aut", "cre"))
-Description: Implements a range of voting methods and electoral systems for determining election winners, including the D21 Method, First-Past-The-Post, Two-round Runoff, Instant Runoff, the Borda Count, Approval Voting, Majority Judgment and the Condorcet Method. The functions accept several ballot formats - ranking, cardinal utilities, approvals and scores - with automatic detection of the input type, configurable tie-breaking and tidy summaries of the results.
+Description: Implements a range of voting methods and electoral systems
+    for determining election winners, including the D21 method with and
+    without minus votes
+    (Janecek, <https://www.ih21.org/d21-janeckova-metoda>),
+    first-past-the-post, two-round runoff, instant runoff, the Borda
+    count, approval voting, majority judgement and the Condorcet method.
+    The functions accept several ballot formats - ranking, cardinal
+    utilities, approvals and scores - with automatic detection of the
+    input type, configurable tie-breaking and tidy summaries of the
+    results.
 License: MIT + file LICENSE
 Encoding: UTF-8
 URL: https://github.com/ivan-ih21/electsys21
