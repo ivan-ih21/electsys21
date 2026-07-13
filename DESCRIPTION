@@ -7,7 +7,7 @@ Authors@R:
 Description: Implements a range of voting methods and electoral systems
     for determining election winners, including the D21 method with and
     without minus votes
-    (Janecek, <https://www.ih21.org/d21-janeckova-metoda>),
+    (Janecek, <https://www.ih21.org/en/d21-janecek-method>),
     first-past-the-post, two-round runoff, instant runoff, the Borda
     count, approval voting, majority judgement and the Condorcet method.
     The functions accept several ballot formats - ranking, cardinal
