@@ -28,3 +28,6 @@
   — 0 errors | 0 warnings | 1 note (New submission; proper names as above).
 * R-hub v2: linux, macos, macos-arm64, windows (all R-devel), plus
   clang-ASAN/UBSAN, gcc-ASAN and valgrind — OK.
+
+  The R-hub 'rchk' job fails, but does not apply here: electsys21 is a
+  pure R package with no compiled code.
