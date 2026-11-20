@@ -6,3 +6,4 @@
 ^\.Rhistory$
 ^\.github$
 ^CRAN-SUBMISSION$
+^CLAUDE\.md$
